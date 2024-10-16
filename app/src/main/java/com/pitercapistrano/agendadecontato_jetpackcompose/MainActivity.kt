@@ -3,44 +3,36 @@ package com.pitercapistrano.agendadecontato_jetpackcompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.AgendaDeContatoJetpackComposeTheme
+import com.pitercapistrano.agendadecontato_jetpackcompose.views.AtualizarContato
+import com.pitercapistrano.agendadecontato_jetpackcompose.views.ListaContatos
+import com.pitercapistrano.agendadecontato_jetpackcompose.views.SalvarContato
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AgendaDeContatoJetpackComposeTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
+
+                val navControler = rememberNavController()
+
+                NavHost(navController = navControler, startDestination = "listaContatos" ){
+                    composable("listaContatos"){
+                        ListaContatos(navControler)
+                    }
+
+                    composable("salvarContato") {
+                        SalvarContato(navControler)
+                    }
+
+                    composable("atualizarContato") {
+                        AtualizarContato(navControler)
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AgendaDeContatoJetpackComposeTheme {
-        Greeting("Android")
     }
 }

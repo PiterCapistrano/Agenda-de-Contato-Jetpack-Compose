@@ -1,6 +1,9 @@
+import com.android.build.gradle.internal.utils.findKaptOrKspConfigurationsForVariant
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id ("kotlin-kapt")
 }
 
 android {
@@ -66,4 +69,15 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+
+    val nav_version = "2.8.3"
+    implementation ("androidx.navigation:navigation-compose:$nav_version")
+
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 }
