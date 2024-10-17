@@ -1,5 +1,6 @@
 package com.pitercapistrano.agendadecontato_jetpackcompose.componentes
 
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -13,9 +14,10 @@ fun MyOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: @Composable () -> Unit,
-    keyboardOptions: KeyboardOptions,
-    modifier: Modifier
-    ) {
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    modifier: Modifier,
+    keyboardActions: KeyboardActions
+) {
 
     OutlinedTextField(
         value,
@@ -27,7 +29,9 @@ fun MyOutlinedTextField(
         focusedBorderColor = Purple80,
         focusedLabelColor = Purple40
     ),
+    keyboardActions = keyboardActions,
     modifier = modifier,
-    maxLines = 1
+    maxLines = 1,
+    singleLine = true
     )
 }

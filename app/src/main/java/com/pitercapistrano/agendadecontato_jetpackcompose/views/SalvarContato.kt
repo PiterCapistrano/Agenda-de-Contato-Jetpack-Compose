@@ -1,11 +1,13 @@
 package com.pitercapistrano.agendadecontato_jetpackcompose.views
 
 import android.widget.Toast
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,28 +27,44 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.pitercapistrano.agendadecontato_jetpackcompose.componentes.MyButton
 import com.pitercapistrano.agendadecontato_jetpackcompose.componentes.MyOutlinedTextField
+import com.pitercapistrano.agendadecontato_jetpackcompose.dao.ContatoDao
+import com.pitercapistrano.agendadecontato_jetpackcompose.db.DB
+import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Purple80
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Red
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.White
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+private lateinit var contatoDao: ContatoDao
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SalvarContato(navController: NavController) {
 
+    // Inicialize o FocusRequester para cada campo
+    val nomeFocusRequester = remember { FocusRequester() }
+    val sobrenomeFocusRequester = remember { FocusRequester() }
+    val emailFocusRequester = remember { FocusRequester() }
+    val telefoneFocusRequester = remember { FocusRequester() }
+
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    val listaContatos: MutableList<Contato> = mutableListOf()
 
     var nome by remember {
         mutableStateOf("")
@@ -90,30 +108,38 @@ fun SalvarContato(navController: NavController) {
 
             MyOutlinedTextField(
                 value = nome,
-                onValueChange = {
-                    nome = it
-                },
+                onValueChange = { nome = it },
                 label = { Text(text = "Nome") },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { sobrenomeFocusRequester.requestFocus() }
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp, 80.dp, 20.dp, 10.dp),
+                    .padding(20.dp, 80.dp, 20.dp, 10.dp)
+                    .focusRequester(nomeFocusRequester)
+                    .focusable()
             )
 
             MyOutlinedTextField(
                 value = sobrenome,
-                onValueChange = {
-                    sobrenome = it
-                },
+                onValueChange = { sobrenome = it },
                 label = { Text(text = "Sobrenome") },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { emailFocusRequester.requestFocus() }
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp, 0.dp, 20.dp, 10.dp)
+                    .focusRequester(sobrenomeFocusRequester)
+                    .focusable()
             )
 
             MyOutlinedTextField(
@@ -123,11 +149,17 @@ fun SalvarContato(navController: NavController) {
                 },
                 label = { Text(text = "E-mail") },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { telefoneFocusRequester.requestFocus() }
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp, 0.dp, 20.dp, 10.dp)
+                    .focusRequester(emailFocusRequester)
+                    .focusable()
             )
 
             MyOutlinedTextField(
@@ -135,26 +167,56 @@ fun SalvarContato(navController: NavController) {
                 onValueChange = { telefone = it },
                 label = { Text(text = "Telefone") },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { nomeFocusRequester.requestFocus() }
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp, 0.dp, 20.dp, 10.dp)
+                    .focusRequester(telefoneFocusRequester)
+                    .focusable()
             )
 
             MyButton(
                 onClick = {
-                    if (nome.isEmpty() || sobrenome.isEmpty() || email.isEmpty() || telefone.isEmpty()) {
-                        // Mostra a Snackbar
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Preencha todos os campos!",
-                                duration = SnackbarDuration.Short
-                            )
+
+                    var mensagem = false
+
+                    coroutineScope.launch(Dispatchers.IO) {
+
+                        if (nome.isEmpty() || sobrenome.isEmpty() || email.isEmpty() || telefone.isEmpty()) {
+                            mensagem = false
+                        } else {
+                            mensagem = true
+                            val contato = Contato(nome, sobrenome, email, telefone)
+                            listaContatos.add(contato)
+                            contatoDao = DB.getInstance(context).contatoDao()
+                            contatoDao.salvarContato(listaContatos)
                         }
-                    } else {
-                        Toast.makeText(context, "Contato Criado com Sucesso!", Toast.LENGTH_SHORT).show()
                     }
+
+                    coroutineScope.launch(Dispatchers.Main){
+                        if (mensagem){
+                            Toast.makeText(
+                                context,
+                                "Contato Criado com Sucesso!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            navController.popBackStack()
+                        }else {
+                            // Mostra a Snackbar
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Preencha todos os campos!",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                        }
+                    }
+
                 },
                 texto = "Salvar"
             )
@@ -173,7 +235,7 @@ fun SalvarContato(navController: NavController) {
     }
 }
 
-@Preview
+
 @Composable
 private fun SalvarContatoPreview(){
     SalvarContato(navController = rememberNavController())
