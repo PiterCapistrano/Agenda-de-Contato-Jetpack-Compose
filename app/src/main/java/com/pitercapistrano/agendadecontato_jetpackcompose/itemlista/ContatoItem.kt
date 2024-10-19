@@ -1,5 +1,6 @@
 package com.pitercapistrano.agendadecontato_jetpackcompose.itemlista
 
+import android.app.AlertDialog
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -24,6 +25,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.pitercapistrano.agendadecontato_jetpackcompose.R
 import com.pitercapistrano.agendadecontato_jetpackcompose.dao.ContatoDao
+import com.pitercapistrano.agendadecontato_jetpackcompose.db.DB
 import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Black
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Red
@@ -31,6 +33,8 @@ import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Shape
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.White
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+private lateinit var contatoDao: ContatoDao
 
 @Composable
 fun ContatoItem(
@@ -44,13 +48,33 @@ fun ContatoItem(
 
     val listaContatos: MutableList<Contato> = mutableListOf()
 
-    val contatoDao: ContatoDao? = null
-
     val nome = listaContato[position].nome
     val sobrenome = listaContato[position].sobrenome
     val email = listaContato[position].email
     val telefone = listaContato[position].telefone
     val uid = listaContato[position].uid
+
+    val contato = listaContato[position]
+
+    fun alertDaiologDeletarContato(){
+        val alertDialog = AlertDialog.Builder(context)
+        alertDialog.setTitle("Deseja Excluir?")
+            .setMessage("Tem certeza?")
+        alertDialog.setPositiveButton("Ok"){_,_->
+            coroutineScope.launch(Dispatchers.IO) {
+
+                contatoDao = DB.getInstance(context).contatoDao()
+                contatoDao.deletar(uid)
+                listaContato.remove(contato)
+            }
+            coroutineScope.launch(Dispatchers.Main) {
+                navController.navigate("listaContatos")
+                Toast.makeText(context, "Contato Deletado com Sucesso!", Toast.LENGTH_SHORT).show()
+            }
+        }
+        alertDialog.setNegativeButton("Cancelar"){_,_->}
+        alertDialog.show()
+    }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -125,8 +149,7 @@ fun ContatoItem(
 
             Button(
                 onClick = {
-                    contatoDao?.deletar(uid)
-                Toast.makeText(context, "Contato deletado com sucesso!", Toast.LENGTH_SHORT).show()
+                    alertDaiologDeletarContato()
                 },
                 modifier = Modifier.constrainAs(btDeletar){
                     top.linkTo(txtEmail.bottom)
