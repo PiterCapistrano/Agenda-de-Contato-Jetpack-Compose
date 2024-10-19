@@ -204,6 +204,7 @@ fun AtualizarContato(navController: NavController, uid: String){
                                 "Contato Atualizado com Sucesso!",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            navController.popBackStack()
                         }else{
                             // Mostra a Snackbar
                             coroutineScope.launch {
