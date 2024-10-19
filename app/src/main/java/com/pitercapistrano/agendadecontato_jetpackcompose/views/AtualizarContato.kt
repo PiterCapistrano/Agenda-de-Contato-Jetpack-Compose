@@ -183,9 +183,10 @@ fun AtualizarContato(navController: NavController, uid: String){
 
             MyButton(
                 onClick = {
+                     var mensagem = false
                     coroutineScope.launch(Dispatchers.IO) {
 
-                        var mensagem = false
+
 
                         if (nome.isEmpty() || sobrenome.isEmpty() || email.isEmpty() || telefone.isEmpty()) {
                             mensagem = false
@@ -196,7 +197,23 @@ fun AtualizarContato(navController: NavController, uid: String){
                             contatoDao.atualizar(uid.toInt(), nome, sobrenome, email, telefone)
                         }
                     }
-                    coroutineScope.launch {  }
+                    coroutineScope.launch(Dispatchers.Main) {
+                        if(mensagem){
+                            Toast.makeText(
+                                context,
+                                "Contato Atualizado com Sucesso!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }else{
+                            // Mostra a Snackbar
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Preencha todos os campos!",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                        }
+                    }
                 },
                 texto = "Atualizar"
             )
