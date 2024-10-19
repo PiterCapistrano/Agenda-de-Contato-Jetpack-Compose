@@ -33,22 +33,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.pitercapistrano.agendadecontato_jetpackcompose.componentes.MyButton
 import com.pitercapistrano.agendadecontato_jetpackcompose.componentes.MyOutlinedTextField
+import com.pitercapistrano.agendadecontato_jetpackcompose.dao.ContatoDao
+import com.pitercapistrano.agendadecontato_jetpackcompose.db.DB
 import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Purple80
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Red
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.White
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+private lateinit var contatoDao: ContatoDao
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AtualizarContato(navController: NavController){
+fun AtualizarContato(navController: NavController, uid: String){
 
     // Inicialize o FocusRequester para cada campo
     val nomeFocusRequester = remember { FocusRequester() }
@@ -179,17 +183,20 @@ fun AtualizarContato(navController: NavController){
 
             MyButton(
                 onClick = {
-                    if (nome.isEmpty() || sobrenome.isEmpty() || email.isEmpty() || telefone.isEmpty()) {
-                        // Mostra a Snackbar
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Preencha todos os campos!",
-                                duration = SnackbarDuration.Short
-                            )
+                    coroutineScope.launch(Dispatchers.IO) {
+
+                        var mensagem = false
+
+                        if (nome.isEmpty() || sobrenome.isEmpty() || email.isEmpty() || telefone.isEmpty()) {
+                            mensagem = false
+                        } else {
+                            mensagem = true
+
+                            contatoDao = DB.getInstance(context).contatoDao()
+                            contatoDao.atualizar(uid.toInt(), nome, sobrenome, email, telefone)
                         }
-                    } else {
-                        Toast.makeText(context, "Contato Atualizado com Sucesso!", Toast.LENGTH_SHORT).show()
                     }
+                    coroutineScope.launch {  }
                 },
                 texto = "Atualizar"
             )
@@ -206,10 +213,4 @@ fun AtualizarContato(navController: NavController){
             }
         }
     }
-}
-
-
-@Composable
-fun AtualizarContatoPreview(){
-    AtualizarContato(navController = rememberNavController())
 }

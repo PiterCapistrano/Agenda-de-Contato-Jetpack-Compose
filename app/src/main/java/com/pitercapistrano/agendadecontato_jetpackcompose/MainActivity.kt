@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.AgendaDeContatoJetpackComposeTheme
 import com.pitercapistrano.agendadecontato_jetpackcompose.views.AtualizarContato
 import com.pitercapistrano.agendadecontato_jetpackcompose.views.ListaContatos
@@ -28,8 +29,11 @@ class MainActivity : ComponentActivity() {
                         SalvarContato(navControler)
                     }
 
-                    composable("atualizarContato") {
-                        AtualizarContato(navControler)
+                    composable(
+                        "atualizarContato/{uid}",
+                        arguments = listOf(navArgument("uid"){})
+                    ) {
+                        AtualizarContato(navControler, it.arguments?.getString("uid").toString())
                     }
                 }
             }
