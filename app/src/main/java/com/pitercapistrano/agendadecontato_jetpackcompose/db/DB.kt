@@ -1,10 +1,7 @@
 package com.pitercapistrano.agendadecontato_jetpackcompose.db
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.pitercapistrano.agendadecontato_jetpackcompose.constantes.Constantes
 import com.pitercapistrano.agendadecontato_jetpackcompose.dao.ContatoDao
 import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato
 

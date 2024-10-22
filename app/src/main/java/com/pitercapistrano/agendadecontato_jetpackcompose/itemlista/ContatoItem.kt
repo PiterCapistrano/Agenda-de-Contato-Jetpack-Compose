@@ -5,9 +5,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -22,31 +20,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.pitercapistrano.agendadecontato_jetpackcompose.R
+/* Método utilizado antes da refatoração para arquitetura MVVM
 import com.pitercapistrano.agendadecontato_jetpackcompose.dao.ContatoDao
-import com.pitercapistrano.agendadecontato_jetpackcompose.db.DB
+import com.pitercapistrano.agendadecontato_jetpackcompose.db.DB*/
 import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Black
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Red
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Shape
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.White
+import com.pitercapistrano.agendadecontato_jetpackcompose.viewModel.ContatoViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-private lateinit var contatoDao: ContatoDao
+/* Método utilizado antes da refatoração para arquitetura MVVM
+private lateinit var contatoDao: ContatoDao*/
 
 @Composable
 fun ContatoItem(
     navController: NavController,
     position: Int,
     listaContato: MutableList<Contato>,
-    context: Context
+    context: Context,
+    //Método refatorado
+    viewModel: ContatoViewModel = hiltViewModel()
 ){
 
     val coroutineScope = rememberCoroutineScope()
 
-    val listaContatos: MutableList<Contato> = mutableListOf()
+    /* Método utilizado antes da refatoração para arquitetura MVVM
+    val listaContatos: MutableList<Contato> = mutableListOf()*/
 
     val nome = listaContato[position].nome
     val sobrenome = listaContato[position].sobrenome
@@ -54,7 +59,8 @@ fun ContatoItem(
     val telefone = listaContato[position].telefone
     val uid = listaContato[position].uid
 
-    val contato = listaContato[position]
+    /* Método utilizado antes da refatoração para arquitetura MVVM
+    val contato = listaContato[position]*/
 
     fun alertDaiologDeletarContato(){
         val alertDialog = AlertDialog.Builder(context)
@@ -63,9 +69,13 @@ fun ContatoItem(
         alertDialog.setPositiveButton("Ok"){_,_->
             coroutineScope.launch(Dispatchers.IO) {
 
+                /* Método utilizado antes da refatoração para arquitetura MVVM
                 contatoDao = DB.getInstance(context).contatoDao()
                 contatoDao.deletar(uid)
-                listaContato.remove(contato)
+                listaContato.remove(contato)*/
+
+                //Método refatorado
+                viewModel.deletar(uid)
             }
             coroutineScope.launch(Dispatchers.Main) {
                 navController.navigate("listaContatos")

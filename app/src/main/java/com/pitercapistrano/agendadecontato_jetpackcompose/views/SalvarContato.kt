@@ -37,11 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+/* Método utilizado antes da refatoração para arquitetura MVVM
+import androidx.navigation.compose.rememberNavController*/
 import com.pitercapistrano.agendadecontato_jetpackcompose.componentes.MyButton
 import com.pitercapistrano.agendadecontato_jetpackcompose.componentes.MyOutlinedTextField
+/* Método utilizado antes da refatoração para arquitetura MVVM
 import com.pitercapistrano.agendadecontato_jetpackcompose.dao.ContatoDao
-import com.pitercapistrano.agendadecontato_jetpackcompose.db.DB
+import com.pitercapistrano.agendadecontato_jetpackcompose.db.DB*/
 import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Purple80
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Red
@@ -50,7 +52,8 @@ import com.pitercapistrano.agendadecontato_jetpackcompose.viewModel.ContatoViewM
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-private lateinit var contatoDao: ContatoDao
+/* Método utilizado antes da refatoração para arquitetura MVVM
+private lateinit var contatoDao: ContatoDao*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +67,7 @@ fun SalvarContato(navController: NavController, viewModel: ContatoViewModel = hi
 
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+
     val coroutineScope = rememberCoroutineScope()
 
     val listaContatos: MutableList<Contato> = mutableListOf()
@@ -185,9 +189,9 @@ fun SalvarContato(navController: NavController, viewModel: ContatoViewModel = hi
             MyButton(
                 onClick = {
 
-                    var mensagem = false
-
-                    coroutineScope.launch(Dispatchers.IO) {
+                    val mensagem: Boolean
+                    /* Método utilizado antes da refatoração para arquitetura MVVM
+                    coroutineScope.launch(Dispatchers.IO) {*/
 
                         if (nome.isEmpty() || sobrenome.isEmpty() || email.isEmpty() || telefone.isEmpty()) {
                             mensagem = false
@@ -195,11 +199,33 @@ fun SalvarContato(navController: NavController, viewModel: ContatoViewModel = hi
                             mensagem = true
                             val contato = Contato(nome, sobrenome, email, telefone)
                             listaContatos.add(contato)
+                            //Método implementado após a refatoração
+                            viewModel.salvarContato(listaContatos)
+                            /* Método utilizado antes da refatoração para arquitetura MVVM
                             contatoDao = DB.getInstance(context).contatoDao()
-                            contatoDao.salvarContato(listaContatos)
+                            contatoDao.salvarContato(listaContatos)*/
                         }
-                    }
 
+                        coroutineScope.launch(Dispatchers.Main) {
+                            if (mensagem) {
+                                Toast.makeText(
+                                    context,
+                                    "Contato Criado com Sucesso!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navController.popBackStack()
+                            } else {
+                                // Mostra a Snackbar
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Preencha todos os campos!",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        }
+
+                    /* Método utilizado antes da refatoração para arquitetura MVVM
                     coroutineScope.launch(Dispatchers.Main){
                         if (mensagem){
                             Toast.makeText(
@@ -217,7 +243,7 @@ fun SalvarContato(navController: NavController, viewModel: ContatoViewModel = hi
                                 )
                             }
                         }
-                    }
+                    }*/
 
                 },
                 texto = "Salvar"
@@ -235,10 +261,4 @@ fun SalvarContato(navController: NavController, viewModel: ContatoViewModel = hi
             }
         }
     }
-}
-
-
-@Composable
-private fun SalvarContatoPreview(){
-    SalvarContato(navController = rememberNavController())
 }

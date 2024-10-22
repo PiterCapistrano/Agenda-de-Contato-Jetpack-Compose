@@ -13,7 +13,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.collectAsState
+/* Método utilizado antes da refatoração para arquitetura MVVM
+import androidx.compose.runtime.rememberCoroutineScope*/
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -26,27 +28,36 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.pitercapistrano.agendadecontato_jetpackcompose.R
+/* Método utilizado antes da refatoração para arquitetura MVVM
 import com.pitercapistrano.agendadecontato_jetpackcompose.dao.ContatoDao
-import com.pitercapistrano.agendadecontato_jetpackcompose.db.DB
+import com.pitercapistrano.agendadecontato_jetpackcompose.db.DB*/
 import com.pitercapistrano.agendadecontato_jetpackcompose.itemlista.ContatoItem
-import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato
+/* Método utilizado antes da refatoração para arquitetura MVVM
+import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato*/
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Purple80
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.White
 import com.pitercapistrano.agendadecontato_jetpackcompose.viewModel.ContatoViewModel
+/* Método utilizado antes da refatoração para arquitetura MVVM
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.launch*/
 
-private lateinit var contatoDao: ContatoDao
+/* Método utilizado antes da refatoração para arquitetura MVVM
+private lateinit var contatoDao: ContatoDao*/
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaContatos(navController: NavController, viewModel: ContatoViewModel = hiltViewModel()) {
 
+    /* Método utilizado antes da refatoração para arquitetura MVVM
     val listaContato: MutableList<Contato> = mutableListOf()
+    val scope = rememberCoroutineScope()*/
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
+    // Método refatorado
+    val listaContato = viewModel.getContatos().collectAsState(mutableListOf()).value
+
+    /* Método utilizado antes da refatoração para arquitetura MVVM
     scope.launch(Dispatchers.IO){
         contatoDao = DB.getInstance(context).contatoDao()
         val contatos = contatoDao.getContatos()
@@ -54,7 +65,7 @@ fun ListaContatos(navController: NavController, viewModel: ContatoViewModel = hi
         for (contato in contatos){
             listaContato.add(contato)
         }
-    }
+    }*/
 
     Scaffold(
         topBar = {
@@ -87,8 +98,8 @@ fun ListaContatos(navController: NavController, viewModel: ContatoViewModel = hi
         LazyColumn(
             modifier = Modifier.padding(it)
         ) {
-            itemsIndexed(listaContato){position, item ->
-                ContatoItem(navController, position, listaContato, context)
+            itemsIndexed(listaContato){position, _ ->
+                ContatoItem(navController, position, listaContato, context, viewModel)
 
             }
         }
