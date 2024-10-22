@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.pitercapistrano.agendadecontato_jetpackcompose.componentes.MyButton
@@ -45,6 +46,7 @@ import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Purple80
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Red
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.White
+import com.pitercapistrano.agendadecontato_jetpackcompose.viewModel.ContatoViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -52,7 +54,7 @@ private lateinit var contatoDao: ContatoDao
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SalvarContato(navController: NavController) {
+fun SalvarContato(navController: NavController, viewModel: ContatoViewModel = hiltViewModel()) {
 
     // Inicialize o FocusRequester para cada campo
     val nomeFocusRequester = remember { FocusRequester() }

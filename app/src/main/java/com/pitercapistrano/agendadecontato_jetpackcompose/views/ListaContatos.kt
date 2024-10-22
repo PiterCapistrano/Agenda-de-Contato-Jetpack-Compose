@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.pitercapistrano.agendadecontato_jetpackcompose.R
@@ -31,6 +32,7 @@ import com.pitercapistrano.agendadecontato_jetpackcompose.itemlista.ContatoItem
 import com.pitercapistrano.agendadecontato_jetpackcompose.model.Contato
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.Purple80
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.White
+import com.pitercapistrano.agendadecontato_jetpackcompose.viewModel.ContatoViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -39,7 +41,7 @@ private lateinit var contatoDao: ContatoDao
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListaContatos(navController: NavController) {
+fun ListaContatos(navController: NavController, viewModel: ContatoViewModel = hiltViewModel()) {
 
     val listaContato: MutableList<Contato> = mutableListOf()
     val context = LocalContext.current

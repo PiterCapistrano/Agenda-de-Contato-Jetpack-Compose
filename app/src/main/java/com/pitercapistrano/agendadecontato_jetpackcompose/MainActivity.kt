@@ -3,15 +3,19 @@ package com.pitercapistrano.agendadecontato_jetpackcompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.pitercapistrano.agendadecontato_jetpackcompose.ui.theme.AgendaDeContatoJetpackComposeTheme
+import com.pitercapistrano.agendadecontato_jetpackcompose.viewModel.ContatoViewModel
 import com.pitercapistrano.agendadecontato_jetpackcompose.views.AtualizarContato
 import com.pitercapistrano.agendadecontato_jetpackcompose.views.ListaContatos
 import com.pitercapistrano.agendadecontato_jetpackcompose.views.SalvarContato
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,21 +23,22 @@ class MainActivity : ComponentActivity() {
             AgendaDeContatoJetpackComposeTheme {
 
                 val navControler = rememberNavController()
+                val viewModel: ContatoViewModel = hiltViewModel()
 
                 NavHost(navController = navControler, startDestination = "listaContatos" ){
                     composable("listaContatos"){
-                        ListaContatos(navControler)
+                        ListaContatos(navControler, viewModel)
                     }
 
                     composable("salvarContato") {
-                        SalvarContato(navControler)
+                        SalvarContato(navControler, viewModel)
                     }
 
                     composable(
                         "atualizarContato/{uid}",
                         arguments = listOf(navArgument("uid"){})
                     ) {
-                        AtualizarContato(navControler, it.arguments?.getString("uid").toString())
+                        AtualizarContato(navControler, viewModel, it.arguments?.getString("uid").toString())
                     }
                 }
             }

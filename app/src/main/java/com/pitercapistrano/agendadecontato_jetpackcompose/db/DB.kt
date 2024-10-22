@@ -13,7 +13,9 @@ abstract class DB: RoomDatabase() {
 
     abstract fun contatoDao(): ContatoDao
 
-    companion object{
+
+    // Bloco de código utilizado antes da implementação do Hilt e da refatoração para a arquitetura MVVM
+    /*companion object{
 
         @Volatile
         private var INSTANCE: DB? = null
@@ -30,6 +32,6 @@ abstract class DB: RoomDatabase() {
                 instance
             }
         }
-    }
+    }*/
 }
 
